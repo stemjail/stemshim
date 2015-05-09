@@ -1,0 +1,23 @@
+int chdir(const char *path) hook_read(path);
+
+int __lxstat64(int __ver, const char *path, void *__stat_buf) hook_read(path);
+int __lxstat(int __ver, const char *path, void *__stat_buf) hook_read(path);
+int __xstat64(int __ver, const char *path, void *__stat_buf) hook_read(path);
+int __xstat(int __ver, const char *path, void *__stat_buf) hook_read(path);
+
+int __open_2(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int __open64_2(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int __open64(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int open64(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int __open(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int open(const char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+
+int rmdir(const char *path) hook_write(path);
+
+int unlink(const char *path) hook_write(path);
+
+int __xmknod(int __ver, const char *path, __mode_t __mode, __dev_t *__dev) hook_write(path);
+
+void *dlopen(const char *path, int __flag) hook_read(path);
+
+void *opendir(const char *path) hook_dir(path);
