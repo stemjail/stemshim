@@ -15,11 +15,13 @@
 #![feature(libc)]
 
 extern crate libc;
+extern crate stemjail;
 
 use libc::c_char;
 use std::ffi::CStr;
-use std::path::Path;
 use std::str::from_utf8;
+use stemjail::cmd::shim::ShimKageCmd;
+use stemjail::util::absolute_path;
 
 // TODO: Handle openat-like functions (from the C side):
 // 1. readlink /proc/self/<fd> + check for trailing " (deleted)"
@@ -37,9 +39,10 @@ pub extern "C" fn stemjail_request_access(path: *const c_char, write: bool) -> b
     let c_str = unsafe { CStr::from_ptr(path) };
     match from_utf8(c_str.to_bytes()) {
         Ok(val) => {
-            let path_raw = Path::new(val);
-            println!("Request access write:{} path:{}", write, path_raw.display());
-            true
+            match ShimKageCmd::do_access(absolute_path(val), write) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
         },
         Err(_) => false,
     }

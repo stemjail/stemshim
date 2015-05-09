@@ -6,3 +6,7 @@ authors = ["Mickaël Salaün <mickael.salaun@ssi.gouv.fr>"]
 [lib]
 name = "stemshim"
 crate-type = ["dylib"]
+
+[dependencies.stemjail]
+path = "../stemjail"
+version = ">= 0.1.0"
