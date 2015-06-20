@@ -7,6 +7,7 @@ repository = "https://github.com/stemjail/stemshim"
 readme = "README.md"
 keywords = ["linux", "system"]
 license = "LGPL-3.0"
+exclude = [".gitignore"]
 
 [lib]
 name = "stemshim"
