@@ -15,9 +15,6 @@
 CC = gcc
 CFLAGS = -Werror -Wall -Wextra -Wformat=2 -ansi -fPIC
 TARGET = target/debug
-LDFLAGS = -ldl -L ./$(TARGET) -l$(STEMSHIM_NAME)
-
-STEMSHIM_NAME = $(shell find $(TARGET) -maxdepth 1 -name 'libstemshim-*.so' | sed -r 's,.*/lib(.*)\.so$$,\1,')
 
 .PHONY: all clean mrproper run
 
@@ -32,23 +29,24 @@ mrproper: clean
 	rm $(TARGET)/test-open || true
 	cargo clean
 
-run: $(TARGET)/build $(TARGET)/hook-open.so $(TARGET)/test-open
+run: $(TARGET)/hook-open.so $(TARGET)/test-open
 	LD_LIBRARY_PATH=./$(TARGET) LD_PRELOAD=./$(TARGET)/hook-open.so ./$(TARGET)/test-open
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(TARGET)/build: src/lib.rs
+$(TARGET)/libstemshim.so: src/lib.rs
 	cargo build
 
 gen/wrapper.c: ./tools/gen-wrapper.py ./tools/libc.txt
 	test -d ./gen || mkdir ./gen
 	./$^ > $@
 
-src/hook-open.o: gen/wrapper.c $(TARGET)/build
+src/hook-open.o: gen/wrapper.c $(TARGET)/libstemshim.so
 
-$(TARGET)/hook-open.so: $(TARGET)/build src/hook-open.o
-	$(CC) -shared $(LDFLAGS) -o $@ src/hook-open.o
+$(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.so
+	$(CC) -shared -ldl -L ./$(TARGET) -lstemshim $(LDFLAGS) -o $@ $^
 
-$(TARGET)/test-open: $(TARGET)/build tests/open.c
-	$(CC) tests/open.c -o $@
+$(TARGET)/test-open: tests/open.c
+	test -d $(TARGET) || mkdir -p $(TARGET)
+	$(CC) $^ -o $@
