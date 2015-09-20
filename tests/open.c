@@ -1,7 +1,10 @@
 #include <fcntl.h>
+#define __USE_LARGEFILE64
 #include <stdio.h>
 #include <sys/stat.h>
 #include <dirent.h>
+
+extern int __open(const char *pathname, int flags);
 
 int main(int argc, char *argv[])
 {
