@@ -49,4 +49,4 @@ $(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.so
 
 $(TARGET)/test-open: tests/open.c
 	test -d $(TARGET) || mkdir -p $(TARGET)
-	$(CC) $^ -o $@
+	$(CC) $^ $(CFLAGS) -o $@

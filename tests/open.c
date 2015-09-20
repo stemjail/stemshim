@@ -35,6 +35,10 @@ int main(int argc, char *argv[])
 	printf("\nread:\n");
 	stat(".", &s);
 	printf("\nread:\n");
-	DIR *d = opendir(".");
+	opendir(".");
+
+	/* Bypasse -Werror=unused-parameter */
+	argc = argc;
+
 	return 0;
 }
