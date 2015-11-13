@@ -14,7 +14,14 @@
 
 CC = gcc
 CFLAGS = -Werror -Wall -Wextra -Wformat=2 -ansi -fPIC
+
+ifndef DEBUG
+TARGET = target/release
+CARGO_RELEASE = --release
+else
 TARGET = target/debug
+CARGO_RELEASE =
+endif
 
 .PHONY: all clean mrproper run
 
@@ -36,7 +43,7 @@ run: $(TARGET)/hook-open.so $(TARGET)/test-open
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(TARGET)/libstemshim.so: src/lib.rs
-	cargo build
+	cargo build $(CARGO_RELEASE)
 
 gen/wrapper.c: ./tools/gen-wrapper.py ./tools/libc.txt
 	test -d ./gen || mkdir ./gen
