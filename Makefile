@@ -52,7 +52,10 @@ gen/wrapper.c: ./tools/gen-wrapper.py ./tools/libc.txt
 src/hook-open.o: gen/wrapper.c $(TARGET)/libstemshim.so
 
 $(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.so
-	$(CC) -shared -ldl -L ./$(TARGET) -lstemshim $(LDFLAGS) -o $@ $^
+	rm libstemshim.so || true
+	ln -s $(TARGET)/libstemshim.so
+	gcc -shared -ldl -L ./$(TARGET) -lstemshim -o $(TARGET)/hook-open.so src/hook-open.o libstemshim.so
+	ldd $(TARGET)/hook-open.so
 
 $(TARGET)/test-open: tests/open.c
 	test -d $(TARGET) || mkdir -p $(TARGET)
