@@ -21,3 +21,6 @@ int __xmknod(int __ver, const char *path, __mode_t __mode, __dev_t *__dev) hook_
 void *dlopen(const char *path, int __flag) hook_read(path);
 
 void *opendir(const char *path) hook_dir(path);
+
+int openat(int dirfd, char *path, int flags, mode_t mode) hook_custom_open(path, flags);
+int unlinkat(int dirfd, char *path, int flags, mode_t mode) hook_custom_open(path, flags);
