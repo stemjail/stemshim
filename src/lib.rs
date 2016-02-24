@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![feature(thread_local_state)]
+
 extern crate libc;
 extern crate stemjail;
 
@@ -19,6 +21,7 @@ use libc::c_char;
 use std::cell::RefCell;
 use std::ffi::CStr;
 use std::str::from_utf8;
+use std::thread::LocalKeyState;
 use stemjail::cmd::shim::{AccessData, ShimKageCmd, AccessCache};
 use stemjail::util::absolute_path;
 
@@ -45,9 +48,14 @@ pub extern "C" fn stemjail_request_access(path: *const c_char, write: bool) -> b
                 write: write,
             };
 
-            ACCESS_CACHE.with(|cache| {
-                ShimKageCmd::cache_ask_access(access_data, &mut *cache.borrow_mut()).is_ok()
-            })
+            match ACCESS_CACHE.state() {
+                LocalKeyState::Destroyed => false,
+                LocalKeyState::Uninitialized | LocalKeyState::Valid => {
+                    ACCESS_CACHE.with(|cache| {
+                        ShimKageCmd::cache_ask_access(access_data, &mut *cache.borrow_mut()).is_ok()
+                    })
+                }
+            }
         },
         Err(_) => false,
     }
