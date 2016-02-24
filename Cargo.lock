@@ -2,6 +2,7 @@
 name = "stemshim"
 version = "0.3.0"
 dependencies = [
+ "libc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "stemjail 0.3.0",
 ]
 
@@ -64,6 +65,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "libc"
 version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "libc"
+version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
