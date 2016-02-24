@@ -13,6 +13,9 @@ exclude = [".gitignore"]
 name = "stemshim"
 crate-type = ["dylib"]
 
+[dependencies]
+libc = "*"
+
 [dependencies.stemjail]
 path = "../stemjail"
 version = ">= 0.3.0"
