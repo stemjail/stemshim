@@ -21,6 +21,7 @@ CARGO_RELEASE = --release
 else
 TARGET = target/debug
 CARGO_RELEASE =
+CFLAGS += -g
 endif
 
 .PHONY: all clean mrproper run
