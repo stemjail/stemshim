@@ -12,13 +12,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![feature(borrow_state)]
 #![feature(thread_local_state)]
 
 extern crate libc;
 extern crate stemjail;
 
 use libc::c_char;
-use std::cell::RefCell;
+use std::cell::{BorrowState, RefCell};
 use std::ffi::CStr;
 use std::str::from_utf8;
 use std::thread::LocalKeyState;
@@ -43,16 +44,22 @@ pub extern "C" fn stemjail_request_access(path: *const c_char, write: bool) -> b
     let c_str = unsafe { CStr::from_ptr(path) };
     match from_utf8(c_str.to_bytes()) {
         Ok(val) => {
-            let access_data = AccessData {
-                path: absolute_path(val),
-                write: write,
-            };
-
             match ACCESS_CACHE.state() {
                 LocalKeyState::Destroyed => false,
                 LocalKeyState::Uninitialized | LocalKeyState::Valid => {
                     ACCESS_CACHE.with(|cache| {
-                        ShimKageCmd::cache_ask_access(access_data, &mut *cache.borrow_mut()).is_ok()
+                        match cache.borrow_state() {
+                            // Ignore the request when the cache_ask_access code is using the
+                            // filesystem to avoid recursion.
+                            BorrowState::Reading | BorrowState::Writing => false,
+                            BorrowState::Unused => {
+                                let access_data = AccessData {
+                                    path: absolute_path(val),
+                                    write: write,
+                                };
+                                ShimKageCmd::cache_ask_access(access_data, &mut *cache.borrow_mut()).is_ok()
+                            }
+                        }
                     })
                 }
             }
