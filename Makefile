@@ -35,6 +35,7 @@ clean:
 mrproper: clean
 	rm $(TARGET)/hook-open.so || true
 	rm $(TARGET)/test-open || true
+	rm libstemshim.so || true
 	cargo clean
 
 run: $(TARGET)/hook-open.so $(TARGET)/test-open
