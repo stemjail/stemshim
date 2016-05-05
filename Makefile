@@ -35,7 +35,7 @@ clean:
 mrproper: clean
 	rm $(TARGET)/hook-open.so || true
 	rm $(TARGET)/test-open || true
-	rm libstemshim.so || true
+	rm libstemshim.a || true
 	cargo clean
 
 run: $(TARGET)/hook-open.so $(TARGET)/test-open
@@ -44,19 +44,19 @@ run: $(TARGET)/hook-open.so $(TARGET)/test-open
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(TARGET)/libstemshim.so: src/lib.rs
+$(TARGET)/libstemshim.a: src/lib.rs
 	cargo build $(CARGO_RELEASE)
 
 gen/wrapper.c: ./tools/gen-wrapper.py ./tools/libc.txt
 	test -d ./gen || mkdir ./gen
 	./$^ > $@
 
-src/hook-open.o: gen/wrapper.c $(TARGET)/libstemshim.so
+src/hook-open.o: gen/wrapper.c $(TARGET)/libstemshim.a
 
-$(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.so
-	rm libstemshim.so || true
-	ln -s $(TARGET)/libstemshim.so
-	gcc -shared -ldl -L ./$(TARGET) -lstemshim -o $(TARGET)/hook-open.so src/hook-open.o libstemshim.so
+$(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.a
+	rm libstemshim.a || true
+	ln -s $(TARGET)/libstemshim.a
+	gcc -shared -ldl -L ./$(TARGET) -lstemshim -o $(TARGET)/hook-open.so src/hook-open.o libstemshim.a
 	ldd $(TARGET)/hook-open.so
 
 $(TARGET)/test-open: tests/open.c

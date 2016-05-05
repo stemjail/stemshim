@@ -1,4 +1,4 @@
+*.a
 /gen
 *.o
-*.so
 /target
