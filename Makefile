@@ -14,6 +14,7 @@
 
 CC = gcc
 CFLAGS = -Werror -Wall -Wextra -Wformat=2 -ansi -fPIC
+LDFLAGS_SHIM = -lc -ldl -lpthread -lgcc_s -lm -lrt
 
 ifndef DEBUG
 TARGET = target/release
@@ -56,8 +57,7 @@ src/hook-open.o: gen/wrapper.c $(TARGET)/libstemshim.a
 $(TARGET)/hook-open.so: src/hook-open.o $(TARGET)/libstemshim.a
 	rm libstemshim.a || true
 	ln -s $(TARGET)/libstemshim.a
-	gcc -shared -ldl -L ./$(TARGET) -lstemshim -o $(TARGET)/hook-open.so src/hook-open.o libstemshim.a
-	ldd $(TARGET)/hook-open.so
+	gcc -shared $(LDFLAGS_SHIM) -L ./$(TARGET) -lstemshim -o $(TARGET)/hook-open.so src/hook-open.o libstemshim.a
 
 $(TARGET)/test-open: tests/open.c
 	test -d $(TARGET) || mkdir -p $(TARGET)
