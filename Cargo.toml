@@ -1,6 +1,6 @@
 [package]
 name = "stemshim"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Mickaël Salaün <mic@digikod.net>"]
 description = "Shim for compatibility with StemJail"
 repository = "https://github.com/stemjail/stemshim"
